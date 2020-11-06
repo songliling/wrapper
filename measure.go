@@ -73,3 +73,13 @@ func (r *Report) Dump(dir string) error {
 	out := path.Join(dir, fmt.Sprintf("report-%s-%s.json", r.Detail, r.SectorSize))
 	return ioutil.WriteFile(out, content, 0644)
 }
+
+func (r *Report) DumpStep(dir, step string) error {
+	content, err := json.Marshal(r)
+	if err != nil {
+		return err
+	}
+
+	out := path.Join(dir, fmt.Sprintf("report-%s-%s-%s.json", r.Detail, r.SectorSize, step))
+	return ioutil.WriteFile(out, content, 0644)
+}

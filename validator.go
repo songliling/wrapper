@@ -15,49 +15,49 @@ import (
 )
 
 type Keeper struct {
-	statement *Statement
-	challenge *Challenge
+	Statement *Statement
+	Challenge *Challenge
 }
 
 // SetStatement save the validator commited statement
 func (k *Keeper) SetStatement(st *Statement) {
-	k.statement = st
+	k.Statement = st
 }
 
 // GetStatement as getter
 func (k *Keeper) GetStatement() *Statement {
-	return k.statement
+	return k.Statement
 }
 
 // PickStatement mimic the actual method with the same name
 func (k *Keeper) PickStatement() *Statement {
-	return k.statement
+	return k.Statement
 }
 
 // SetChallenge
 func (k *Keeper) SetChallenge(chal *Challenge) {
-	k.challenge = chal
+	k.Challenge = chal
 }
 
 // GetChallenge
 func (k *Keeper) GetChallenge() *Challenge {
-	return k.challenge
+	return k.Challenge
 }
 
 // Validator is the statement challenge
 type Validator struct {
-	keeper *Keeper
+	Keeper *Keeper
 }
 
 // NewValidator as the factor method
 func NewValidator() *Validator {
 	k := &Keeper{
-		statement: nil,
-		challenge: nil,
+		Statement: nil,
+		Challenge: nil,
 	}
 
 	return &Validator{
-		keeper: k,
+		Keeper: k,
 	}
 }
 
@@ -66,7 +66,7 @@ const RANDBUFLEN = 32
 
 // HandlePoRepStatement mimics the cosmos handler
 func (v *Validator) HandlePoRepStatement(st *Statement) {
-	v.keeper.SetStatement(st)
+	v.Keeper.SetStatement(st)
 }
 
 // PoRepChallenge fire a challenge
@@ -81,17 +81,17 @@ func (v *Validator) PoRepChallenge() abi.InteractiveSealRandomness {
 
 // GenChallenge mimic the actual method with the same name
 func (v *Validator) GenChallenge() {
-	st := v.keeper.PickStatement()
+	st := v.Keeper.PickStatement()
 	chal := v.PoRepChallenge()
 
-	v.keeper.SetChallenge(&Challenge{
+	v.Keeper.SetChallenge(&Challenge{
 		StatementID: st.ID,
 		Content:     chal,
 	})
 }
 
 func (v *Validator) queryChallengeSet() *Challenge {
-	return v.keeper.GetChallenge()
+	return v.Keeper.GetChallenge()
 }
 
 // PoRepVerify validate the proof commit by miner
@@ -121,8 +121,8 @@ func (v *Validator) PoRepVerify(
 
 // HandlePoRepProof mimics the cosmos handler
 func (v *Validator) HandlePoRepProof(prf *Proof) (bool, error) {
-	chal := v.keeper.GetChallenge()
-	st := v.keeper.GetStatement()
+	chal := v.Keeper.GetChallenge()
+	st := v.Keeper.GetStatement()
 
 	return v.PoRepVerify(
 		st.MinerID,

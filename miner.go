@@ -30,40 +30,40 @@ const (
 
 // MinerStorage works as the mimic of storage node
 type MinerStorage struct {
-	fileDB      map[string]string
-	statementDB map[string]*Statement
+	FileDB      map[string]string
+	StatementDB map[string]*Statement
 }
 
 // NewMinerStorage as the factory
 func NewMinerStorage() *MinerStorage {
 	return &MinerStorage{
-		fileDB:      make(map[string]string),
-		statementDB: make(map[string]*Statement),
+		FileDB:      make(map[string]string),
+		StatementDB: make(map[string]*Statement),
 	}
 }
 
 // SetStatement as setter mimic
 func (ms *MinerStorage) SetStatement(st *Statement) {
 	key := base64.StdEncoding.EncodeToString([]byte(st.ID))
-	ms.statementDB[key] = st
+	ms.StatementDB[key] = st
 }
 
 // GetStatement as getter mimic
 func (ms *MinerStorage) GetStatement(givenID abi.SealRandomness) *Statement {
 	key := base64.StdEncoding.EncodeToString([]byte(givenID))
-	return ms.statementDB[key]
+	return ms.StatementDB[key]
 }
 
 // SetStatementDir as setter mimic
 func (ms *MinerStorage) SetStatementDir(givenID []byte, path string) {
 	key := base64.StdEncoding.EncodeToString(givenID)
-	ms.fileDB[key] = path
+	ms.FileDB[key] = path
 }
 
 // GetStatementDir as getter mimic
 func (ms *MinerStorage) GetStatementDir(givenID abi.SealRandomness) string {
 	key := base64.StdEncoding.EncodeToString([]byte(givenID))
-	return ms.fileDB[key]
+	return ms.FileDB[key]
 }
 
 // Miner is the `storage` part in this demo
