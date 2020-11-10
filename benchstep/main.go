@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/filecoin-project/filecoin-ffi/generated"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/util"
@@ -11,6 +12,7 @@ import (
 	"math/rand"
 	"os"
 	"path"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -23,6 +25,7 @@ const (
 
 var (
 	DB           *leveldb.DB
+	file         *os.File
 	ValidatorKey = []byte{0x01}
 	MinerKey     = []byte{0x10}
 	DirKey       = []byte{0x20}
@@ -63,11 +66,21 @@ func inputToProofType(input string) abi.RegisteredSealProof {
 }
 
 func init() {
+	//env::set_var("RUST_LOG", "debug");
+	os.Setenv("RUST_LOG", "debug")
+
 	db, err := leveldb.OpenFile(StepDBName, nil)
 	if err != nil {
 		panic(fmt.Sprintf("open leveldb error: %s", err.Error()))
 	}
 	DB = db
+
+	file, err = os.Create("ffi.log")
+	if err != nil {
+		panic(fmt.Sprintf("create ffi.log error: %s", err.Error()))
+	}
+	defer runtime.KeepAlive(file)
+	generated.FilInitLogFd(int32(file.Fd()))
 }
 
 func cleanDB() {
@@ -163,6 +176,7 @@ func getValidator() (*wrapper.Validator, error) {
 
 func step1(dir string, typ abi.RegisteredSealProof) {
 	defer DB.Close()
+	defer file.Close()
 	cleanDB()
 	// seed the randomizer
 	rand.Seed(time.Now().UnixNano())
@@ -240,6 +254,7 @@ func step1(dir string, typ abi.RegisteredSealProof) {
 
 func step2(dir string, typ abi.RegisteredSealProof) {
 	defer DB.Close()
+	defer file.Close()
 	report, err := wrapper.NewReport(dir, typ)
 	if err != nil {
 		panic(err)
